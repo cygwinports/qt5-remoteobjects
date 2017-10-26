@@ -1,0 +1,63 @@
+inherit qt5-qmake
+
+NAME="qt5-remoteobjects"
+VERSION=5.9.2
+RELEASE=1
+CATEGORY="Libs"
+SUMMARY="Qt C++ application framework (RemoteObjects library)"
+DESCRIPTION="Qt is a cross-platform application framework for desktop and
+embedded development. Qt enables programmers to create advanced GUI
+applications once and deploy them to Windows, Mac OS X and Linux without
+rewriting the source code. Companies using Qt can leverage software
+investments made on one platform across many others."
+HOMEPAGE="https://www.qt.io/"
+SRC_URI="http://download.qt.io/official_releases/qt/${VERSION%.*}/${VERSION}/submodules/qtremoteobjects-opensource-src-${VERSION}.tar.xz"
+SRC_DIR="qtremoteobjects-opensource-src-${VERSION}"
+
+PKG_NAMES="libQt5RemoteObjects5 libQt5RemoteObjects-devel ${NAME}-doc ${NAME}-examples"
+libQt5RemoteObjects5_CONTENTS="
+	usr/bin/cygQt5RemoteObjects-5.dll
+	usr/lib/qt5/qml/QtQml/RemoteObjects/
+	usr/share/doc/
+"
+libQt5RemoteObjects_devel_CONTENTS="
+	usr/bin/repc-qt5
+	usr/include/qt5/QtRemoteObjects/
+	usr/include/qt5/QtRepParser/
+	usr/lib/cmake/Qt5RepParser/
+	usr/lib/cmake/Qt5RemoteObjects/
+	usr/lib/libQt5RemoteObjects.*
+	usr/lib/pkgconfig/Qt5RemoteObjects.pc
+	usr/lib/qt5/bin/repc.exe
+	usr/lib/qt5/mkspecs/features/remoteobjects_repc.prf
+	usr/lib/qt5/mkspecs/features/repc*.pri
+	usr/lib/qt5/mkspecs/features/repparser.prf
+	usr/lib/qt5/mkspecs/modules/qt_lib_remoteobjects.pri
+	usr/lib/qt5/mkspecs/modules/qt_lib_remoteobjects_private.pri
+	usr/lib/qt5/mkspecs/modules/qt_lib_repparser.pri
+	usr/lib/qt5/mkspecs/modules/qt_lib_repparser_private.pri
+"
+qt5_remoteobjects_doc_CATEGORY="X11"
+qt5_remoteobjects_doc_CONTENTS="usr/share/qt5/doc/qtremoteobjects*"
+qt5_remoteobjects_examples_CATEGORY="X11"
+qt5_remoteobjects_examples_CONTENTS="usr/lib/qt5/examples/remoteobjects/"
+
+DIFF_EXCLUDES="tests"
+
+src_compile() {
+	cd ${B}
+	cygqmake5 ${S}
+	cygmake
+	cygmake docs
+}
+
+src_install() {
+	cd ${B}
+	qt5_qmake_install install_docs
+
+	for x in ${D}/usr/lib/qt5/bin/*.exe
+	do
+		xname=$(basename $x .exe)
+		dosym ../lib/qt5/bin/${xname}.exe /usr/bin/${xname}-qt5
+	done
+}
